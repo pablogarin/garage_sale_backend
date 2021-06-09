@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Response
 import json
 from api.db.database import db
@@ -29,7 +30,8 @@ class ProductResource(Resource):
         self._response.set_data(json.dumps([dict(c) for c in categories]))
 
     def create(self, name, price, image, available_date):
-        product = Product(name=name, price=price, image=image, available_date=available_date)
+        date_object = datetime.strptime(available_date, '%Y-%m-%d')
+        product = Product(name=name, price=price, image=image, available_date=date_object)
         self._database.session.add(product)
         self._database.session.commit()
         self._response.set_data(json.dumps(dict(product)))
@@ -39,10 +41,13 @@ class ProductResource(Resource):
         if not product:
             raise ResourceNotFoundError()
         if product:
-            product.name = name
-            product.price = price
-            product.image = image
-            product.available_date = available_date
+            product.name = name if name else product.name
+            product.price = price if price else product.price
+            product.image = image if image else product.image
+            product.available_date = \
+              datetime.strptime(available_date, '%Y-%m-%d')\
+              if available_date\
+              else product.available_date
             self._database.session.commit()
             self._response.set_data(json.dumps(dict(product)))
         

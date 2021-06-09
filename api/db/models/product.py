@@ -1,3 +1,4 @@
+from datetime import datetime
 from api.db.database import db
 
 
@@ -11,7 +12,10 @@ class Product(db.Model):
     def __iter__(self):
         data = {
             "id": self.id,
-            "name": self.name
+            "name": self.name,
+            "price": self.price,
+            "image": self.image,
+            "availableDate": datetime.strftime(self.available_date, '%Y-%m-%d')
         }
         for key, value in data.items():
             yield key, value

@@ -5,6 +5,7 @@ import json
 
 from api.db.database import db
 from api.db.database import init_database
+from api.resource.cart_resource import CartResource
 from api.resource.category_resource import CategoryResource
 from api.resource.product_resource import ProductResource
 
@@ -19,6 +20,12 @@ def create_flask_app():
   def home():
     return "UP"
   
+  @app.route("/cart", methods=["GET", "POST"])
+  @app.route("/cart/<cart_id>", methods=["GET", "PUT", "DELETE"])
+  def cart(cart_id=None):
+    resource = CartResource(db)
+    return resource.process_request(request, cart_id=cart_id)
+
   @app.route("/category", methods=["GET", "POST"])
   @app.route("/category/<category_id>", methods=["GET", "PUT", "DELETE"])
   def category(category_id=None):
