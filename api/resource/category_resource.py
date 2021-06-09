@@ -34,7 +34,7 @@ class CategoryResource(Resource):
         self._database.session.commit()
         self._response.set_data(json.dumps(dict(category)))
 
-    def update(self, id, name):
+    def update(self, id, name=None):
         category = Category.query.filter_by(id=id).first()
         if not category:
             raise ResourceNotFoundError()

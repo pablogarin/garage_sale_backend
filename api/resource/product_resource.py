@@ -28,13 +28,13 @@ class ProductResource(Resource):
         categories = Product.query.all()
         self._response.set_data(json.dumps([dict(c) for c in categories]))
 
-    def create(self, name):
-        product = Product(name=name)
+    def create(self, name, price, image, available_date):
+        product = Product(name=name, price=price, image=image, available_date=available_date)
         self._database.session.add(product)
         self._database.session.commit()
         self._response.set_data(json.dumps(dict(product)))
 
-    def update(self, id, name, price, image, available_date):
+    def update(self, id, name=None, price=None, image=None, available_date=None):
         product = Product.query.filter_by(id=id).first()
         if not product:
             raise ResourceNotFoundError()

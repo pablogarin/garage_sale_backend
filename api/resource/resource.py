@@ -28,7 +28,7 @@ class Resource(ABC):
                 payload = request.json
                 if not kwargs[self.id_key]:
                     raise InvalidRequestError("No id provided")
-                self.update(kwargs[self.id_key], payload["name"])
+                self.update(kwargs[self.id_key], **payload)
         except InvalidRequestError as e:
             self._response.status_code = 422
             self._response.set_data(json.dumps({"success": False, "error": f"{e}"}))
