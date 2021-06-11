@@ -1,4 +1,5 @@
 from datetime import datetime
+import uuid
 
 from sqlalchemy.orm import backref, relationship
 from api.db.database import db
@@ -14,7 +15,7 @@ class CartProduct(db.Model):
 
 
 class Cart(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(32), primary_key=True, default=lambda: f"{uuid.uuid4()}")
     total = db.Column(db.Float, nullable=False, default=0.0)
     finished = db.Column(db.Boolean, nullable=False, default=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.now())

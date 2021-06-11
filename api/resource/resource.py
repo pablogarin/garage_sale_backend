@@ -1,8 +1,26 @@
 from abc import ABC
 from abc import abstractmethod
+from flask import Response
 import json
 from api.resource.invalid_request_error import InvalidRequestError
 from api.resource.resource_not_found_error import ResourceNotFoundError
+
+
+def middleware(request, callable=None, methods=None):
+    def apply(func):
+        def wrapper(*args, **kwargs):
+            try:
+                callable(request, *args, methods=methods, **kwargs)
+                return func(*args, **kwargs)
+            except Exception as e:
+                resp = Response()
+                resp.headers["Content-type"] = "application/json"
+                resp.status_code = e.status_code if hasattr(e, "status_code") else 500
+                resp.set_data(json.dumps({"message": f"{e}"}))
+                return resp
+        wrapper.__name__ = func.__name__
+        return wrapper
+    return apply
 
 
 class Resource(ABC):
