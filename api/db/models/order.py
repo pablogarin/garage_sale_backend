@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import relationship
 from api.db.database import db
 
 
-class CartProduct(db.Model):
-  cart_id = db.Column(db.Integer, db.ForeignKey('cart.id'), primary_key=True)
+class OrderProduct(db.Model):
+  order_id = db.Column(db.Integer, db.ForeignKey('order.id'), primary_key=True)
   product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
   quantity = db.Column(db.Integer, nullable=False)
   price = db.Column(db.Float, nullable=False)
@@ -13,12 +13,12 @@ class CartProduct(db.Model):
   product = relationship("Product")
 
 
-class Cart(db.Model):
+class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     total = db.Column(db.Float, nullable=False, default=0.0)
     finished = db.Column(db.Boolean, nullable=False, default=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    products = db.relationship("CartProduct", lazy="subquery")
+    products = db.relationship("OrderProduct", lazy="subquery")
 
     def __iter__(self):
         data = {

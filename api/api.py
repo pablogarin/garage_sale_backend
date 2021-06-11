@@ -8,6 +8,9 @@ from api.db.database import init_database
 from api.resource.cart_resource import CartResource
 from api.resource.category_resource import CategoryResource
 from api.resource.product_resource import ProductResource
+from api.db.models.user import UserAddress
+from api.db.models.user import User
+from api.db.models.order import Order
 
 
 def create_flask_app():
