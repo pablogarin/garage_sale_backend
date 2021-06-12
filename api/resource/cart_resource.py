@@ -1,3 +1,4 @@
+from api.utils.authentication import authenticate
 from api.resource.invalid_request_error import InvalidRequestError
 from datetime import datetime
 from flask import Response
@@ -8,6 +9,7 @@ from api.db.models.cart import CartProduct
 from api.db.models.product import Product
 from api.resource.resource import Resource
 from api.resource.resource_not_found_error import ResourceNotFoundError
+from api.utils.authentication import authenticate
 
 
 class CartResource(Resource):
@@ -29,18 +31,19 @@ class CartResource(Resource):
         self._response.set_data(json.dumps(dict(cart)))
 
     def get_all(self):
-        categories = Cart.query.all()
-        self._response.set_data(json.dumps([dict(c) for c in categories]))
+        authenticate(self._request)
+        carts = Cart.query.all()
+        self._response.set_data(json.dumps([dict(c) for c in carts]))
 
     def create(self, products=None, total=None):
         date_object = datetime.now()
-        cart = Cart(total=0.0, date=date_object, products=self.get_products(products))
-        cart.total = self.get_total(cart)
+        cart = Cart(total=0.0, date=date_object, products=self._get_products(products))
+        cart.total = self._get_total(cart)
         self._database.session.add(cart)
         self._database.session.commit()
         self._response.set_data(json.dumps({**dict(cart)}))
     
-    def get_products(self, product_list, cart=None):
+    def _get_products(self, product_list, cart=None):
         products = list()
         for prd in product_list:
             deleted = False
@@ -66,7 +69,7 @@ class CartResource(Resource):
             products.extend(cart.products)
         return products
     
-    def get_total(self, cart):
+    def _get_total(self, cart):
         total = 0.0
         for product in cart.products:
             total += product.price * product.quantity
@@ -77,14 +80,13 @@ class CartResource(Resource):
         if not cart:
             raise ResourceNotFoundError()
         if cart:
-            cart.total = total if total else cart.total
             cart.finished = finished if finished else cart.finished
-            cart.products = self.get_products(products, cart=cart) if products else cart.products
+            cart.products = self._get_products(products, cart=cart) if products else cart.products
             cart.date = \
               datetime.strptime(date, '%Y-%m-%d')\
               if date\
               else cart.date
-            cart.total = self.get_total(cart)
+            cart.total = self._get_total(cart)
             self._database.session.commit()
             self._response.set_data(json.dumps(dict(cart)))
         

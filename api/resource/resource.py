@@ -31,19 +31,20 @@ class Resource(ABC):
 
     def process_request(self, *args, **kwargs):
         request, *_ = args
+        self._request = request
         try:
-            if request.method == "GET":
+            if self._request.method == "GET":
                 if kwargs[self.id_key]:
                     self.get(kwargs[self.id_key])
                 else:
                     self.get_all()
-            elif request.method == "POST":
-                payload = request.json
+            elif self._request.method == "POST":
+                payload = self._request.json
                 if payload is None:
                     raise InvalidRequestError("Invalid data")
                 self.create(**payload)
-            elif request.method == "PUT":
-                payload = request.json
+            elif self._request.method == "PUT":
+                payload = self._request.json
                 if not kwargs[self.id_key]:
                     raise InvalidRequestError("No id provided")
                 self.update(kwargs[self.id_key], **payload)

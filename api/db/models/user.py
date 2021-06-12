@@ -1,3 +1,4 @@
+from sqlalchemy.orm import lazyload
 from api.db.database import db
 
 
