@@ -2,6 +2,8 @@ from flask import Response
 import json
 from api.db.database import db
 from api.db.models.category import Category
+from api.db.models.category import CategoryProduct
+from api.db.models.product import Product
 from api.resource.resource import Resource
 from api.resource.resource_not_found_error import ResourceNotFoundError
 
@@ -22,7 +24,12 @@ class CategoryResource(Resource):
         category = Category.query.filter_by(id=id).first()
         if not category:
             raise ResourceNotFoundError()
-        self._response.set_data(json.dumps(dict(category)))
+        category_dict = dict(category)
+        if self._request.args.get("products") == "1":
+          category_dict["products"] = [
+            dict(p.product)
+            for p in category.products]
+        self._response.set_data(json.dumps(category_dict))
 
     def get_all(self):
         categories = Category.query.all()
@@ -34,12 +41,15 @@ class CategoryResource(Resource):
         self._database.session.commit()
         self._response.set_data(json.dumps(dict(category)))
 
-    def update(self, id, name=None):
+    def update(self, id, name=None, products=[]):
         category = Category.query.filter_by(id=id).first()
         if not category:
             raise ResourceNotFoundError()
         if category:
-            category.name = name
+            category.name = name if name else category.name
+            for product_id in products:
+              product = Product.query.filter_by(id=product_id).first()
+              category.products.append(CategoryProduct(product=product, category=category))
             self._database.session.commit()
             self._response.set_data(json.dumps(dict(category)))
         

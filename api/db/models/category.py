@@ -6,6 +6,7 @@ class CategoryProduct(db.Model):
   category_id = db.Column(db.Integer, db.ForeignKey("category.id"), primary_key=True)
   product_id = db.Column(db.Integer, db.ForeignKey("product.id"), primary_key=True)
   product = relationship("Product")
+  category = relationship("Category")
 
 
 class Category(db.Model):
