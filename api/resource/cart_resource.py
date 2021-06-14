@@ -24,8 +24,8 @@ class CartResource(Resource):
         self._response.headers["Content-type"] = "application/json"
         self._database = database
     
-    def get(self, id):
-        cart = Cart.query.filter_by(id=id).first()
+    def get(self, cart_id=None):
+        cart = Cart.query.filter_by(id=cart_id).first()
         if not cart:
             raise ResourceNotFoundError()
         self._response.set_data(json.dumps(dict(cart)))
@@ -75,8 +75,8 @@ class CartResource(Resource):
             total += product.price * product.quantity
         return total
 
-    def update(self, id, total=None, finished=None, date=None, products=None):
-        cart = Cart.query.filter_by(id=id).first()
+    def update(self, cart_id=None, total=None, finished=None, date=None, products=None):
+        cart = Cart.query.filter_by(id=cart_id).first()
         if not cart:
             raise ResourceNotFoundError()
         if cart:

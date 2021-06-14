@@ -21,8 +21,8 @@ class UserResource(Resource):
         self._response.headers["Content-type"] = "application/json"
         self._database = database
     
-    def get(self, id):
-        user = User.query.filter_by(id=id).first()
+    def get(self, user_id=None):
+        user = User.query.filter_by(id=user_id).first()
         if not user:
             raise ResourceNotFoundError()
         if re.search(r"/user/\d+/orders", self._request.path):
@@ -45,8 +45,8 @@ class UserResource(Resource):
         self._database.session.commit()
         self._response.set_data(json.dumps(dict(user)))
 
-    def update(self, id, first_name=None, last_name=None, email=None, phone=None):
-        user = User.query.filter_by(id=id).first()
+    def update(self, user_id=None, first_name=None, last_name=None, email=None, phone=None):
+        user = User.query.filter_by(id=user_id).first()
         if not user:
             raise ResourceNotFoundError()
         if user:

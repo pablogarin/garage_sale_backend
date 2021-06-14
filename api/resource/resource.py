@@ -28,14 +28,30 @@ class Resource(ABC):
     @abstractmethod
     def id_key(self):
         return self._id_key
+    
+    @abstractmethod
+    def get(self, id, *args, **kwargs):
+      pass
+    
+    @abstractmethod
+    def get_all(self, *args, **kwargs):
+      pass
+
+    @abstractmethod
+    def create(self, *args, **kwargs):
+      pass
+
+    @abstractmethod
+    def update(self, id, *args, **kwargs):
+      pass
 
     def process_request(self, *args, **kwargs):
         request, *_ = args
         self._request = request
         try:
             if self._request.method == "GET":
-                if kwargs[self.id_key]:
-                    self.get(kwargs[self.id_key])
+                if self.id_key in kwargs:
+                    self.get(**kwargs)
                 else:
                     self.get_all()
             elif self._request.method == "POST":
@@ -45,9 +61,9 @@ class Resource(ABC):
                 self.create(**payload)
             elif self._request.method == "PUT":
                 payload = self._request.json
-                if not kwargs[self.id_key]:
+                if self.id_key not in kwargs:
                     raise InvalidRequestError("No id provided")
-                self.update(kwargs[self.id_key], **payload)
+                self.update(**payload, **kwargs)
         except InvalidRequestError as e:
             self._response.status_code = 422
             self._response.set_data(json.dumps({"success": False, "error": f"{e}"}))

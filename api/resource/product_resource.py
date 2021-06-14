@@ -20,8 +20,8 @@ class ProductResource(Resource):
         self._response.headers["Content-type"] = "application/json"
         self._database = database
     
-    def get(self, id):
-        product = Product.query.filter_by(id=id).first()
+    def get(self, product_id=None):
+        product = Product.query.filter_by(id=product_id).first()
         if not product:
             raise ResourceNotFoundError()
         self._response.set_data(json.dumps(dict(product)))
@@ -39,8 +39,8 @@ class ProductResource(Resource):
         self._database.session.commit()
         self._response.set_data(json.dumps(dict(product)))
 
-    def update(self, id, name=None, price=None, image=None, available_date=None, stock=None):
-        product = Product.query.filter_by(id=id).first()
+    def update(self, product_id=None, name=None, price=None, image=None, available_date=None, stock=None):
+        product = Product.query.filter_by(id=product_id).first()
         if not product:
             raise ResourceNotFoundError()
         if product:

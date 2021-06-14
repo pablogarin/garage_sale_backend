@@ -20,8 +20,8 @@ class CategoryResource(Resource):
         self._response.headers["Content-type"] = "application/json"
         self._database = database
     
-    def get(self, id):
-        category = Category.query.filter_by(id=id).first()
+    def get(self, category_id=None):
+        category = Category.query.filter_by(id=category_id).first()
         if not category:
             raise ResourceNotFoundError()
         category_dict = dict(category)
@@ -41,8 +41,8 @@ class CategoryResource(Resource):
         self._database.session.commit()
         self._response.set_data(json.dumps(dict(category)))
 
-    def update(self, id, name=None, products=[]):
-        category = Category.query.filter_by(id=id).first()
+    def update(self, category_id=None, name=None, products=[]):
+        category = Category.query.filter_by(id=category_id).first()
         if not category:
             raise ResourceNotFoundError()
         if category:

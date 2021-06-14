@@ -25,8 +25,8 @@ class OrderResource(Resource):
         self._response.headers["Content-type"] = "application/json"
         self._database = database
     
-    def get(self, id):
-        order = Order.query.filter_by(id=id).first()
+    def get(self, order_id=None):
+        order = Order.query.filter_by(id=order_id).first()
         if not order:
             raise ResourceNotFoundError()
         self._response.set_data(json.dumps(dict(order)))
