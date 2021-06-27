@@ -20,6 +20,7 @@ class Order(db.Model):
     status = db.Column(db.String, nullable=False, default='created')
     date = db.Column(db.DateTime, nullable=False, default=datetime.now())
     user = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_resource = db.relationship("User", lazy="subquery")
     products = db.relationship("OrderProduct", lazy="subquery")
 
     def __iter__(self):

@@ -29,7 +29,9 @@ class OrderResource(Resource):
         order = Order.query.filter_by(id=order_id).first()
         if not order:
             raise ResourceNotFoundError()
-        self._response.set_data(json.dumps(dict(order)))
+        order_dict = dict(order)
+        order_dict["user"] = dict(order.user_resource)
+        self._response.set_data(json.dumps(order_dict))
 
     def get_all(self):
         authenticate(self._request)

@@ -35,9 +35,15 @@ class UserResource(Resource):
             self._response.set_data(json.dumps(dict(user)))
 
     def get_all(self):
-        authenticate(self._request)
-        users = User.query.all()
-        self._response.set_data(json.dumps([dict(c) for c in users]))
+        if self._request.args.get("email"):
+          email = self._request.args.get("email")
+          print(email)
+          user = User.query.filter_by(email=email).first()
+          if not user:
+            raise ResourceNotFoundError()
+          self._response.set_data(json.dumps(dict(user)))
+        else:
+          raise Exception('Internal server error')
 
     def create(self, first_name=None, last_name=None, email=None, phone=None):
         user = User(first_name=first_name, last_name=last_name, email=email, phone=phone)
