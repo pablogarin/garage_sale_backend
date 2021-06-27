@@ -55,6 +55,7 @@ class CartResource(Resource):
                     if prd["quantity"] <= 0:
                         deleted = True
                         self._database.session.delete(cart_product)
+                        cart.products.remove(cart_product)
                         continue
                     elif cart_product:
                         cart_product.quantity = prd["quantity"]
