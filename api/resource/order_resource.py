@@ -52,11 +52,12 @@ class OrderResource(Resource):
         if not user:
             raise InvalidRequestError("User is not registered")
         date_object = datetime.now()
-        cart = Order(total=0.0, date=date_object, products=self._get_products(products), user=user.id)
-        cart.total = self._get_total(cart)
-        self._database.session.add(cart)
+        order = Order(total=0.0, date=date_object, products=self._get_products(products), user=user.id)
+        order.total = self._get_total(order)
+        self._discount_stock(order.products)
+        self._database.session.add(order)
         self._database.session.commit()
-        self._response.set_data(json.dumps({**dict(cart)}))
+        self._response.set_data(json.dumps({**dict(order)}))
     
     def _get_products(self, product_list, order=None):
         products = list()
@@ -84,6 +85,16 @@ class OrderResource(Resource):
             products.extend(order.products)
         return products
     
+    def _discount_stock(self, products):
+        for prd in products:
+            stock = prd.product.stock
+            available = stock.available - stock.reserved
+            if available >= prd.quantity:
+                stock.reserved = prd.quantity
+                self._database.session.add(prd.product.stock)
+            else:
+                raise Exception('No enough stock')
+
     def _get_total(self, order):
         total = 0.0
         for product in order.products:
