@@ -5,6 +5,7 @@ from api.db.database import db
 from api.db.models.category import Category
 from api.db.models.category import CategoryProduct
 from api.db.models.product import Product
+from api.db.models.product import ProductImage
 from api.db.models.product import ProductStock
 from api.resource.resource import Resource
 from api.resource.resource_not_found_error import ResourceNotFoundError
@@ -66,7 +67,7 @@ class ProductResource(Resource):
             product_id=None,
             name=None,
             price=None,
-            image=None,
+            images=None,
             description=None,
             available_date=None,
             category_id=None,
@@ -77,7 +78,7 @@ class ProductResource(Resource):
         if product:
             product.name = name if name else product.name
             product.price = price if price else product.price
-            product.image = image if image else product.image
+            product.images = self._process_gallery(images, product) if images else product.images
             product.description = \
               description if description else product.description
             product.available_date = \
@@ -99,4 +100,17 @@ class ProductResource(Resource):
                 product.category = [product_category]
             self._database.session.commit()
             self._response.set_data(json.dumps(dict(product)))
-        
+
+    def _process_gallery(self, image_list, product):
+        images = []
+        order = 0.0
+        for url in image_list:
+            image = ProductImage(url=url, order=order)
+            order += 0.1
+            images.append(image)
+        for image in product.images:
+            if image.url not in image_list:
+                self._database.session.delete(image)
+                product.images.remove(image)
+        print(images)
+        return images

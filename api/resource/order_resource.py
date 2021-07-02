@@ -38,7 +38,8 @@ class OrderResource(Resource):
         filters = self._get_filters()
         if not filters:
             orders = Order.query.all()
-            self._response.set_data(json.dumps([dict(c) for c in orders]))
+            self._response.set_data(json.dumps([
+                {**dict(c), "user": dict(c.user_resource)} for c in orders]))
         else:
             orders = Order.query.filter_by(**filters)
             self._response.set_data(json.dumps([dict(c) for c in orders]))

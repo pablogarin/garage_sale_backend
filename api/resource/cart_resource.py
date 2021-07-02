@@ -61,7 +61,8 @@ class CartResource(Resource):
                         cart_product.quantity = prd["quantity"]
                 if not deleted and cart_product is None:
                     cart_product = CartProduct(quantity=prd["quantity"], price=product.price, total_discount=0.0, product=product)
-                if cart_product.quantity > product.stock.available:
+                available_stocks = product.stock.available - product.stock.reserved
+                if cart_product.quantity > available_stocks:
                     raise Exception("Not enough stock")
                 products.append(cart_product)
             else:
