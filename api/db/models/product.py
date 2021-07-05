@@ -26,11 +26,14 @@ class Product(db.Model):
     stock = db.relationship("ProductStock", uselist=False, lazy="subquery")
 
     def __iter__(self):
+        category = dict(self.category[0].category) if len(self.category) > 0 else None
+        print(category)
         data = {
             "id": self.id,
             "name": self.name,
             "price": self.price,
             "images": [img.url for img in self.images],
+            "category": category,
             "description": self.description,
             "availableDate": datetime.strftime(self.available_date, '%Y-%m-%d'),
             "stock": self.stock.available - self.stock.reserved

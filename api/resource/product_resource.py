@@ -29,7 +29,7 @@ class ProductResource(Resource):
             raise ResourceNotFoundError()
         response = dict(product)
         if self._request.args.get("category") == "1":
-          response["category"] = dict(product.category[0].category)
+          response["category"] = dict(product.category[0].category) if len(product.category) > 0 else None
         self._response.set_data(json.dumps(response))
 
     def get_all(self):
@@ -40,7 +40,7 @@ class ProductResource(Resource):
             self,
             name=None,
             price=None,
-            image=None,
+            images=None,
             description=None,
             available_date=None,
             category_id=None,
@@ -49,9 +49,9 @@ class ProductResource(Resource):
         product = Product(
             name=name,
             price=price,
-            image=image,
             description=description,
             available_date=date_object)
+        product.images = self._process_gallery(product, image_list=images)
         product_stock = ProductStock(available=(stock if stock else 1))
         product.stock = product_stock
         if category_id:
@@ -78,7 +78,7 @@ class ProductResource(Resource):
         if product:
             product.name = name if name else product.name
             product.price = price if price else product.price
-            product.images = self._process_gallery(images, product) if images else product.images
+            product.images = self._process_gallery(product, image_list=images) if images else product.images
             product.description = \
               description if description else product.description
             product.available_date = \
@@ -101,16 +101,17 @@ class ProductResource(Resource):
             self._database.session.commit()
             self._response.set_data(json.dumps(dict(product)))
 
-    def _process_gallery(self, image_list, product):
+    def _process_gallery(self, product, image_list=[]):
         images = []
         order = 0.0
-        for url in image_list:
-            image = ProductImage(url=url, order=order)
-            order += 0.1
-            images.append(image)
-        for image in product.images:
-            if image.url not in image_list:
-                self._database.session.delete(image)
-                product.images.remove(image)
-        print(images)
+        if image_list:
+          for url in image_list:
+              image = ProductImage(url=url, order=order)
+              order += 0.1
+              images.append(image)
+        if product.images:
+          for image in product.images:
+              if image.url not in image_list:
+                  self._database.session.delete(image)
+                  product.images.remove(image)
         return images
