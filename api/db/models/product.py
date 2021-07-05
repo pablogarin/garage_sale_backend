@@ -27,7 +27,6 @@ class Product(db.Model):
 
     def __iter__(self):
         category = dict(self.category[0].category) if len(self.category) > 0 else None
-        print(category)
         data = {
             "id": self.id,
             "name": self.name,
