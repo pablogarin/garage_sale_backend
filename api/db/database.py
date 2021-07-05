@@ -1,5 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-database_uri = "sqlite:///database.db"
 
 db = SQLAlchemy()
 
